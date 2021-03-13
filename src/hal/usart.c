@@ -13,8 +13,6 @@
 #define BAUD_RATE_MASK      MASK_16_BIT
 /* RTOR */
 #define RTO_TIMEO_MASK      MASK_24_BIT
-/* RDR */
-#define TRDR_MASK           MASK_8_BIT
 
 /* Register Bits */
 /* CR1 */
@@ -45,10 +43,7 @@
 #define RXNE_OFFSET         5
 #define TC_OFFSET           6
 #define TXE_OFFSET          7
-
-/* TDR RDR */
-#define TRDR_OFFSET          0       
-
+     
 /* Register Shifts */
 /* CR1 */
 #define OVER8_SHIFT         1
@@ -119,18 +114,24 @@ int usart_read(USART_TypeDef *ptr, uint8_t* buf, int len){
     set_ptr_vol_raw_u32(&ptr->ICR, IDLECF_BIT);
     set_ptr_vol_raw_u32(&ptr->ICR, ORECR_BIT);
 
-    int i = 0;
-    while(usart_get_read(ptr)){
-        buf[i] = (uint8_t)get_ptr_vol_u32(&ptr->RDR, TRDR_OFFSET, TRDR_MASK);
-        ++i;
+    int i = 0; // Index based on len
+    int t = 0;  // Index for loop trap, if line goes idle, prevent being trapped by dead line. Convert to fail timer for more accurate usage.
+
+    while(i < len){
+        if (usart_get_read(ptr)) {
+            buf[i] = get_ptr_vol_raw_u8((volatile uint8_t *)&ptr->RDR);
+            i++;
+        }
 
         if (get_ptr_vol_bit_u32(&ptr->ISR, FE_OFFSET) | get_ptr_vol_bit_u32(&ptr->ISR, IDLE_OFFSET) | get_ptr_vol_bit_u32(&ptr->ISR, ORE_OFFSET)) {
             return -1;
         }
 
-        if (i >= len) {
+        if (t > 100000) {
             return -2;
         }
+
+        t++;
     }
 }
 

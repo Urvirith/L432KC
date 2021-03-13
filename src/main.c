@@ -46,20 +46,22 @@ extern void start() {
     timer_start(TIMER2);
     usart_open(USART2, USART_8_Bits, USART_1_StopBit, USART_9600_BAUD, 32000, USART_Oversample_16);
 
-
-    //uint8_t arrayOne[8] = {0x44, 0x6F, 0x67, 0x6D, 0x65, 0x61, 0x74, 0x0D};
-    uint8_t readarray[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
+    uint8_t readarray[9] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0D};
+    uint8_t failarray[2] = {0x39, 0x0D};
+    
     int i = 0;
+    
     while (1) {
-        if (usart_get_read(USART2)) {
-            usart_read(USART2, readarray, 4);
-            usart_write(USART2, readarray, 4);
+        if (usart_get_read(USART2)) { // This will shut off the loop if we dont see a good read flag
+            if (usart_read(USART2, readarray, 8) < 0 ) {
+                usart_write(USART2, failarray, 2);
+            } else {
+                usart_write(USART2, readarray, 9);
+            }
         }
 
         if (timer_get_flag(TIMER2)) {
             if (i == 0) {
-                //usart_write(USART2, arrayOne, 8);
                 gpio_set_pin(GPIOB, USER_LED_BIT);
                 i = 1;
             } else {
