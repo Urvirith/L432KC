@@ -7,6 +7,7 @@
 #include "hal/rcc.h"
 #include "hal/timer.h"
 #include "hal/usart.h"
+#include "hal/i2c.h"
 
 /*REMOVE WITH MAKE FILE*/
 #include "hal/common.c"
@@ -14,6 +15,7 @@
 #include "hal/rcc.c"
 #include "hal/timer.c"
 #include "hal/usart.c"
+#include "hal/i2c.c"
 
 /*---------------------*/
 #define RCC                 ((RCC_TypeDef *) RCC_BASE)

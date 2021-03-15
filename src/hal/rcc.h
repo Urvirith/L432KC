@@ -1,6 +1,5 @@
 #ifndef RCC_H_
 #define RCC_H_
-#include <stdint.h>
 
 // RCC DRIVER
 // ARM RCC MODULE
@@ -53,10 +52,6 @@ typedef struct {
     volatile uint32_t CRRCR;            // Clock Recovery RC Register
     volatile uint32_t CCIPR2;           // Peripherals Independent Clock Configuration Register
 } RCC_TypeDef;
-
-/* Enumerations */
-// Enumeration of avaliable ranges
-enum msi_range {_100kHz, _200kHz, _400kHz, _800kHz, _1MHz, _2MHz, _4MHz, _8MHz, _16MHz, _24MHz, _32MHz, _48MHz};
 
 /* Public Functions */
 void rcc_write_msi_range(RCC_TypeDef *ptr, uint32_t freq_khz);
