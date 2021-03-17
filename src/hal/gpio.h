@@ -12,10 +12,6 @@
 #define GPIOB_BASE          (uint32_t)0x48000400                          /* GPIO Port B base address */
 #define GPIOC_BASE          (uint32_t)0x48000800
 
-/* GPIO Rcc Bits */
-#define GPIOA_RCC_ENABLE    BIT_0
-#define GPIOB_RCC_ENABLE    BIT_1
-
 /* Register Pointer Structure */
 typedef struct {
     volatile uint32_t MODER;    // Mode Register

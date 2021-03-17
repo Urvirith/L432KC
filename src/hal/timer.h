@@ -16,9 +16,6 @@
 #define TIMER15_BASE        (uint32_t)0x40014000
 #define TIMER16_BASE        (uint32_t)0x40014400
 
-/* Timer Rcc Bits */
-#define TIMER2_RCC_ENABLE    BIT_0
-
 /* Register Pointer Structure */
 typedef struct {
     volatile uint32_t CR1;      // Control Register 1

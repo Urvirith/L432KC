@@ -6,12 +6,6 @@
 //#define I2C2_BASE           (uint32_t)0x40005800 Does not exist in the 432KC
 #define I2C3_BASE           (uint32_t)0x40005C00
 
-/* USART Rcc Bits */
-#define USART2_RCC_ENABLE   BIT_17
-
-/* USART GPIO Bits */
-#define I2C_GPIO_AF         AF4
-
 /* Register Pointer Structure */
 typedef struct {
     volatile uint32_t CR1;      // Control Register 1
@@ -28,7 +22,7 @@ typedef struct {
 } I2C_TypeDef;
 
 /* Enumerations */
-// 0 = Continous, 1 = ONS (clears en bit)
+/* Speed of I2C bus, 10KHz, 100KHz 400KHz or Plus mode */
 enum i2c_timing_mode {I2C_Sm_10KHz, I2C_Sm_100KHz, I2C_Fm_400KHz, I2C_Fm_Plus};
 
 /* Public Functions */
@@ -42,10 +36,10 @@ bool i2c_tc(I2C_TypeDef *ptr);
 bool i2c_read(I2C_TypeDef *ptr, uint8_t* buf, int len);
 uint8_t i2c_read_u8(I2C_TypeDef *ptr);
 bool i2c_write(I2C_TypeDef *ptr, uint8_t* buf, int len);
-bool i2c_write_u8(I2C_TypeDef *ptr, uint8_t* buf, int len);
+bool i2c_write_u8(I2C_TypeDef *ptr, uint8_t byte);
 
 /* Public Combined Functions */
-uint32_t i2c_std_read(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* buf_write, uint32_t len_write,  uint8_t* buf_read, uint32_t len_read);
+void i2c_std_read(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* buf_write, uint32_t len_write,  uint8_t* buf_read, uint32_t len_read);
 bool i2c_std_write(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* buf, uint32_t len);
-
+uint8_t i2c_std_read_u8(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* byte_write);
 #endif /* I2C_H_ */

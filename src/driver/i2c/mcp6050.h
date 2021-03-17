@@ -1,6 +1,8 @@
 #ifndef MCP6050_H_
 #define MCP6050_H_
 
+#include "common.h"
+
 /* Public Functions */
 void mcp6050_init(I2C_TypeDef *ptr);
 void mcp6050_read_gyro(I2C_TypeDef *ptr, uint8_t *buf, uint32_t len);

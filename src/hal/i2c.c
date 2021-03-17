@@ -54,6 +54,7 @@
 /* SETUP */
 #define READ                false
 #define WRITE               true
+#define LEN_1_BYTE          1
      
 /* Private Functions */
 static void set_timing_register(I2C_TypeDef *ptr, uint32_t scll, uint32_t sclh, uint32_t sdadel, uint32_t scldel, uint32_t presc);
@@ -142,6 +143,11 @@ void i2c_start_bus(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode) {
 
 void i2c_stop_bus(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode) { 
     clr_ptr_vol_bit_u32(&ptr->CR1, PE_BIT);
+
+    volatile uint32_t i = 0; // CONVERT TO FAULT TIMER, VOLITILE WILL PREVENT OPTIMIZATION
+    while (i < 100000) {
+        i++;
+    }
 }
 
 // • Addressing mode (7-bit or 10-bit): ADD10 • Slave address to be sent: SADD[9:0]
@@ -269,7 +275,7 @@ uint8_t i2c_read_u8(I2C_TypeDef *ptr) {
     return get_ptr_vol_raw_u8((volatile uint8_t *)&ptr->RXDR);
 }
 
-uint32_t i2c_std_read(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* buf_write, uint32_t len_write,  uint8_t* buf_read, uint32_t len_read) {
+void i2c_std_read(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* buf_write, uint32_t len_write,  uint8_t* buf_read, uint32_t len_read) {
     i2c_setup(ptr, slave_addr, addr_10bit, req_10bit, len_write, WRITE);
     i2c_start(ptr);
     i2c_write(ptr, buf_write, len_write);
@@ -280,7 +286,21 @@ uint32_t i2c_std_read(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bo
     i2c_tc(ptr);
     i2c_stop(ptr);
 
-    return 0; // CAN BE USED LATER FOR ALARMING OR TURN TO VOID
+    //return 0; // CAN BE USED LATER FOR ALARMING OR TURN TO VOID
+}
+
+uint8_t i2c_std_read_u8(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* byte_write) {
+    i2c_setup(ptr, slave_addr, addr_10bit, req_10bit, LEN_1_BYTE, WRITE);
+    i2c_start(ptr);
+    i2c_write_u8(ptr, byte_write);
+    i2c_tc(ptr);
+    i2c_setup(ptr, slave_addr, addr_10bit, req_10bit, LEN_1_BYTE, READ);
+    i2c_start(ptr);
+    uint8_t byte = i2c_read_u8(ptr);
+    i2c_tc(ptr);
+    i2c_stop(ptr);
+
+    return byte; // CAN BE USED LATER FOR ALARMING OR TURN TO VOID
 }
 
 // p. 1198
@@ -319,7 +339,7 @@ bool i2c_write(I2C_TypeDef *ptr, uint8_t* buf, int len) {
     return false;
 }
 
-bool i2c_write_u8(I2C_TypeDef *ptr, uint8_t* buf, int len) {
+bool i2c_write_u8(I2C_TypeDef *ptr, uint8_t byte) {
     uint32_t i = 0; 
 
     while (!get_ptr_vol_bit_u32(&ptr->ISR, TXIS_BIT)){
@@ -329,7 +349,7 @@ bool i2c_write_u8(I2C_TypeDef *ptr, uint8_t* buf, int len) {
         i++;
     }
 
-    set_ptr_vol_raw_u8((volatile uint8_t *)&ptr->TXDR, buf[i]);
+    set_ptr_vol_raw_u8((volatile uint8_t *)&ptr->TXDR, byte);
     return false;
 }
 

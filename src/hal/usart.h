@@ -39,12 +39,6 @@
 #define USART2_BASE         (uint32_t)0x40004400
 #define USART3_BASE         (uint32_t)0x40004800
 
-/* USART Rcc Bits */
-#define USART2_RCC_ENABLE    BIT_17
-
-/* USART GPIO Bits */
-#define USART2_GPIO_AF       AF7
-
 /* Register Pointer Structure */
 typedef struct {
     volatile uint32_t CR1;      // Control Register 1
