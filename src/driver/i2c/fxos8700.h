@@ -4,7 +4,7 @@
 #include "common.h"
 
 /* Enumerations */
-/* Speed of I2C bus, 10KHz, 100KHz 400KHz or Plus mode */
+/* Sensitivity of the accelerometer */
 enum fxos8700_range {Fxos8700_Accel_2G, Fxos8700_Accel_4G, Fxos8700_Accel_8G};
 
 /* Public Functions */

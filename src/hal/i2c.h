@@ -6,6 +6,10 @@
 //#define I2C2_BASE           (uint32_t)0x40005800 Does not exist in the 432KC
 #define I2C3_BASE           (uint32_t)0x40005C00
 
+#define ADDR_7_BIT          false
+#define ADDR_10_BIT         false
+
+
 /* Register Pointer Structure */
 typedef struct {
     volatile uint32_t CR1;      // Control Register 1

@@ -1,12 +1,6 @@
 #include "fxos8700.h"
 #include "i2c.h"
 
-// AREA FOR THE GY-521 / MCP6050
-#define ADDR_MCP_0              0x68
-#define ADDR_ARRAY              2
-#define REG_ARRAY               1
-#define ADDR_7_BIT              false
-
 // Library for use of the fxos8700
 // This will set to high accuracy accel and magnotometer
 
