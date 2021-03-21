@@ -2,9 +2,11 @@
 #include "i2c.h"
 
 
+
+#include "usart.h"
+
+
 /* Register Masks */
-/* CR1 */
-#define OVER8_MASK          MASK_4_BIT
 /* CR2 */
 #define ADDR_10_MASK        MASK_10_BIT
 #define ADDR_7_MASK         MASK_9_BIT
@@ -28,11 +30,7 @@
 #define NACK_BIT            BIT_15      // The bit is set by software, cleared by hardware when the NACK is sent, or when a STOP condition or an Address matched is received, or when PE=0. 0: an ACK is sent after current received byte. 1: a NACK is sent after current received byte.
 #define RELOAD_BIT          BIT_24      // 0: The transfer is completed after the NBYTES data transfer (STOP or RESTART follows). 1: The transfer is not completed after the NBYTES data transfer (NBYTES is reloaded). TCR flag is set when NBYTES data are transferred, stretching SCL low.
 #define AUTOEND_BIT         BIT_25      // 0: software end mode: TC flag is set when NBYTES data are transferred, stretching SCL low. 1: Automatic end mode: a STOP condition is automatically sent when NBYTES data are transferred.
-/* ISR */
-// CONST FOR THE ISR AND ICR PG. 1234
-#define TXIS_BIT            BIT_1
-#define RXNE_BIT            BIT_2
-#define TC_BIT              BIT_6
+
 
 
 
@@ -41,8 +39,9 @@
 #define ADDR_10_OFFSET      0
 #define ADDR_7_OFFSET       1
 #define NBYTES_OFFSET       16              // The number of bytes to be transmitted/received is programmed there. This field is don’t care in slave mode with SBC=0.
-#define STOP_BIT_OFFSET     12
-
+#define START_OFFSET        13              // This bit is set by software, and cleared by hardware after the Start followed by the address sequence is sent, by an arbitration loss, by a timeout error detection, or when PE = 0.
+                                            // It can also be cleared by software by writing ‘1’ to the ADDRCF bit in the I2C_ICR register. 0: No Start generation. 1: Restart/Start generation:
+#define STOP_OFFSET         14 
 
 /* TIMINGR */
 #define SCLL_OFFSET         0
@@ -55,6 +54,12 @@
 #define READ                false
 #define WRITE               true
 #define LEN_1_BYTE          1
+
+/* ISR */
+// CONST FOR THE ISR AND ICR PG. 1234
+#define I2C_TXIS_OFFSET         1
+#define I2C_RXNE_OFFSET         2
+#define I2C_TC_OFFSET           6
      
 /* Private Functions */
 static void set_timing_register(I2C_TypeDef *ptr, uint32_t scll, uint32_t sclh, uint32_t sdadel, uint32_t scldel, uint32_t presc);
@@ -187,15 +192,15 @@ bool i2c_start(I2C_TypeDef *ptr) {
 
     uint32_t i = 0; // CONVERT TO FAULT TIMER
 
-    while (get_ptr_vol_bit_u32(&ptr->CR2, START_BIT)){
+    while (get_ptr_vol_bit_u32(&ptr->CR2, START_OFFSET)){
         if (i > 100000) {
-            return true;
+            return false;
         }
 
         i++;
     }
 
-    return false;
+    return true;
 }
 
 bool i2c_stop(I2C_TypeDef *ptr) {
@@ -203,30 +208,28 @@ bool i2c_stop(I2C_TypeDef *ptr) {
 
     uint32_t i = 0; // CONVERT TO FAULT TIMER
 
-    while (get_ptr_vol_bit_u32(&ptr->CR2, STOP_BIT)){
-        if (i > 100000) {
-            return true;
+    while (get_ptr_vol_bit_u32(&ptr->CR2, STOP_OFFSET)){
+        if (i > 1000000) {
+            return false;
         }
 
         i++;
     }
 
-    return false;
+    return true;
 }
 
 bool i2c_tc(I2C_TypeDef *ptr) {
     uint32_t i = 0; // CONVERT TO FAULT TIMER
 
-    set_ptr_vol_bit_u32(&ptr->ISR, TC_BIT);
-
-    while (!get_ptr_vol_bit_u32(&ptr->ISR, TC_BIT)){
+    while (!get_ptr_vol_bit_u32(&ptr->ISR, I2C_TC_OFFSET)){
         if (i > 100000) {
-            return true;
+            return false;
         }
 
         i++;
     }
-    return false;
+    return true;
 }
 
 // p. 1202
@@ -248,9 +251,9 @@ bool i2c_read(I2C_TypeDef *ptr, uint8_t* buf, int len) {
     while(i < len){
         uint32_t t = 0; // CONVERT TO FAULT TIMER
 
-        while (!get_ptr_vol_bit_u32(&ptr->ISR, RXNE_BIT)){
+        while (!get_ptr_vol_bit_u32(&ptr->ISR, I2C_RXNE_OFFSET)){
             if (t > 100000) {
-                return true;
+                return false;
             }
 
             t++;
@@ -259,13 +262,13 @@ bool i2c_read(I2C_TypeDef *ptr, uint8_t* buf, int len) {
         buf[i] = get_ptr_vol_raw_u8((volatile uint8_t *)&ptr->RXDR);
         i++;
     }
-    return false;
+    return true;
 }
 
 uint8_t i2c_read_u8(I2C_TypeDef *ptr) {
     uint32_t i = 0; 
 
-    while (!get_ptr_vol_bit_u32(&ptr->ISR, RXNE_BIT)){
+    while (!get_ptr_vol_bit_u32(&ptr->ISR, I2C_RXNE_OFFSET)){
         if (i > 100000) {
             return 0;
         }
@@ -289,7 +292,7 @@ void i2c_std_read(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool r
     //return 0; // CAN BE USED LATER FOR ALARMING OR TURN TO VOID
 }
 
-uint8_t i2c_std_read_u8(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* byte_write) {
+uint8_t i2c_std_read_u8(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t byte_write) {
     i2c_setup(ptr, slave_addr, addr_10bit, req_10bit, LEN_1_BYTE, WRITE);
     i2c_start(ptr);
     i2c_write_u8(ptr, byte_write);
@@ -326,41 +329,59 @@ bool i2c_write(I2C_TypeDef *ptr, uint8_t* buf, int len) {
     while(i < len){
         uint32_t t = 0; // CONVERT TO FAULT TIMER
 
-        while (!get_ptr_vol_bit_u32(&ptr->ISR, TXIS_BIT)){
+        while (!get_ptr_vol_bit_u32(&ptr->ISR, I2C_TXIS_OFFSET)){
             if (t > 100000) {
-                return true;
+                return false;
             }
             t++;
         }
 
-        set_ptr_vol_raw_u8((volatile uint8_t *)&ptr->TXDR, buf[i]);
+        set_ptr_vol_raw_u32(&ptr->TXDR, buf[i]);
         i++;
     }
-    return false;
+    return true;
 }
 
 bool i2c_write_u8(I2C_TypeDef *ptr, uint8_t byte) {
     uint32_t i = 0; 
 
-    while (!get_ptr_vol_bit_u32(&ptr->ISR, TXIS_BIT)){
+    while (!get_ptr_vol_bit_u32(&ptr->ISR, I2C_TXIS_OFFSET)){
         if (i > 100000) {
-            return true;
+            return false;
         }
         i++;
     }
 
-    set_ptr_vol_raw_u8((volatile uint8_t *)&ptr->TXDR, byte);
-    return false;
+    set_ptr_vol_raw_u32(&ptr->TXDR, byte);
+    return true;
 }
 
-bool i2c_std_write(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* buf, uint32_t len) {
+uint8_t i2c_std_write(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* buf, uint32_t len) {
     i2c_setup(ptr, slave_addr, addr_10bit, req_10bit, len, WRITE);
-    i2c_start(ptr);
-    i2c_write(ptr, buf, len);
-    i2c_tc(ptr);
-    i2c_stop(ptr);
+    bool start = i2c_start(ptr);
+    bool write = i2c_write(ptr, buf, len);
+    bool tc = i2c_tc(ptr);
+    bool stop = i2c_stop(ptr);
 
-    return false;       // CAN BE USED LATER FOR ALARMING OR TURN TO VOID
+    uint8_t val = 0;
+    if (!start) {
+        val += 1;
+    }
+
+    if (!write) {
+        val += 2;
+    }
+
+    if (!tc) {
+        val += 4;
+    }
+
+    if (!stop) {
+        val += 8;
+    }
+
+
+    return val;       // CAN BE USED LATER FOR ALARMING OR TURN TO VOID
 }
 
 // PG. 1522-1523 (MATH TREE)

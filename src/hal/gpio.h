@@ -38,7 +38,7 @@ enum gpio_otype {Gpio_Push_Pull, Gpio_Open_Drain};
 enum gpio_ospeed {Gpio_Low_Speed, Gpio_Medium_Speed, Gpio_High_Speed, Gpio_Very_High_Speed};
 
 // 00: No pull-up, pull-down     01: Pull-up     10: Pull-down     11: Reserved
-enum gpio_pupd {Gpio_PullUp, Gpio_PullDown, Gpio_PullUp_PullDown};
+enum gpio_pupd {Gpio_NoPupd, Gpio_PullUp, Gpio_PullDown};
 
 /* 0000: AF0     0001: AF1     0010: AF2     0011: AF3     0100: AF4     0101: AF5
    0110: AF6     0111: AF7     1000: AF8     1001: AF9     1010: AF10    1011: AF11
@@ -51,6 +51,7 @@ void gpio_set_pin(GPIO_TypeDef *ptr, uint32_t value);
 void gpio_clr_pin(GPIO_TypeDef *ptr, uint32_t value);
 void gpio_set_lock(GPIO_TypeDef *ptr, uint32_t value);
 void gpio_clr_lock(GPIO_TypeDef *ptr, uint32_t value);
-void gpio_io_type(GPIO_TypeDef *ptr, uint32_t bit, uint32_t mode, uint32_t otype, uint32_t alt_func);
-
+void gpio_type(GPIO_TypeDef *ptr, uint32_t bit, uint32_t mode, uint32_t otype, uint32_t alt_func);
+void gpio_speed(GPIO_TypeDef *ptr, uint32_t bit, uint32_t mode);
+void gpio_pupd(GPIO_TypeDef *ptr, uint32_t bit, uint32_t mode);
 #endif /* GPIO_H_ */

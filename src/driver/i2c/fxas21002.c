@@ -1,5 +1,6 @@
 #include "fxas21002.h"
-#include "i2c.h"
+#include "../../hal/i2c.h"
+#include "../../hal/usart.h"
 
 // Library for use of the fxos8700
 // This will set to high accuracy accel and magnotometer
@@ -28,30 +29,27 @@
 #define ADDR                    1
 #define RAW_DATA_ARRAY          7
 
-/* CONSTANTS */
-const uint8_t standby[ADDR_ARRAY] =     {CTRL_REG1, CTRL_REG1_STANDBY};
-const uint8_t reset[ADDR_ARRAY] =       {CTRL_REG1, CTRL_REG1_RESET}; 
-const uint8_t active[ADDR_ARRAY] =      {CTRL_REG1, CTRL_REG1_ACTIVE};
-const uint8_t addr_status[ADDR] =       {GYRO_REG_STATUS};
-
 bool fxas210002_init(I2C_TypeDef *ptr, uint8_t range) {
     uint32_t i = 0;
     //let mut cr1;
+    uint8_t standby[ADDR_ARRAY] =     {CTRL_REG1, CTRL_REG1_STANDBY};
+    uint8_t reset[ADDR_ARRAY] =       {CTRL_REG1, CTRL_REG1_RESET};
 
-    i2c_std_write(ptr, ADDR_FXAS21002, ADDR_7_BIT, ADDR_7_BIT, &standby, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_FXAS21002, ADDR_7_BIT, ADDR_7_BIT, &reset, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXAS21002, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, standby, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXAS21002, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, reset, ADDR_ARRAY);
 
-    while ((i2c_std_read_u8(ptr, ADDR_FXAS21002, ADDR_7_BIT, ADDR_7_BIT, CTRL_REG1) & CTRL_REG1_RESET) == CTRL_REG1_RESET) {
+    while ((i2c_std_read_u8(ptr, ADDR_FXAS21002, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, CTRL_REG1) & CTRL_REG1_RESET) == CTRL_REG1_RESET) {
         if (i > INDEX_BREAK) {
             return false;
         }
         i++;
     }
 
-    uint8_t cr1[ADDR_ARRAY] = {CTRL_REG0, range};    
+    uint8_t cr1[ADDR_ARRAY] = {CTRL_REG0, range}; 
+    uint8_t active[ADDR_ARRAY] = {CTRL_REG1, CTRL_REG1_ACTIVE};
 
-    i2c_std_write(ptr, ADDR_FXAS21002, ADDR_7_BIT, ADDR_7_BIT, &cr1, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_FXAS21002, ADDR_7_BIT, ADDR_7_BIT, &active, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXAS21002, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, cr1, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXAS21002, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, active, ADDR_ARRAY);
 
     return true;
 }
@@ -62,16 +60,17 @@ bool fxas210002_read(I2C_TypeDef *ptr, uint8_t range, int16_t *buf, uint32_t len
         return false;
     }
 
+    uint8_t addr_status[ADDR] = {GYRO_REG_STATUS};
     uint8_t raw_data[RAW_DATA_ARRAY] = {0, 0, 0, 0, 0, 0, 0};
     int16_t x_raw = 0;
     int16_t y_raw = 0;
     int16_t z_raw = 0;
 
-    i2c_std_read(ptr, ADDR_FXAS21002, ADDR_7_BIT, ADDR_7_BIT, &addr_status, ADDR, &raw_data, RAW_DATA_ARRAY);
+    i2c_std_read(ptr, ADDR_FXAS21002, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, addr_status, ADDR, raw_data, RAW_DATA_ARRAY);
 
-    x_raw = ((((int16_t)raw_data[1]) << 8) | (((int16_t)raw_data[2]) << 0)) >> 2;
-    y_raw = ((((int16_t)raw_data[3]) << 8) | (((int16_t)raw_data[4]) << 0)) >> 2;
-    z_raw = ((((int16_t)raw_data[5]) << 8) | (((int16_t)raw_data[6]) << 0)) >> 2;
+    x_raw = ((((int16_t)raw_data[1]) << 8) | (((int16_t)raw_data[2]) << 0));
+    y_raw = ((((int16_t)raw_data[3]) << 8) | (((int16_t)raw_data[4]) << 0));
+    z_raw = ((((int16_t)raw_data[5]) << 8) | (((int16_t)raw_data[6]) << 0));
 
     switch(range) {
         case Fxas21002_Gyro_250DPS:
@@ -113,4 +112,12 @@ bool fxas210002_check_fail(uint16_t *buf, uint32_t len) {
     }
 
     return true;
+}
+
+void wait_loop(){
+    volatile uint32_t i = 0;
+
+    while (i < 10000000) {
+        i++;
+    }
 }

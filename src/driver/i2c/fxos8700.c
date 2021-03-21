@@ -50,9 +50,9 @@ bool fxos8700_init(I2C_TypeDef *ptr, uint8_t range) {
     uint32_t i = 0;
     //let mut cr1;
 
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT, ADDR_7_BIT, &reset, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &reset, ADDR_ARRAY);
 
-    while ((i2c_std_read_u8(ptr, ADDR_FXOS8700, ADDR_7_BIT, ADDR_7_BIT, CTRL_REG2) & CTRL_REG2_RESET) == CTRL_REG2_RESET) {
+    while ((i2c_std_read_u8(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, CTRL_REG2) & CTRL_REG2_RESET) == CTRL_REG2_RESET) {
         if (i > INDEX_BREAK) {
             return false;
         }
@@ -62,15 +62,15 @@ bool fxos8700_init(I2C_TypeDef *ptr, uint8_t range) {
     uint8_t rng[ADDR_ARRAY] = {CTRL_XYZ, range};
     uint8_t cr1[ADDR_ARRAY] = {CTRL_REG1, CTRL_REG1_LOW_NOISE | CTRL_REG1_DR400};    /* Active, Normal Mode, Low Noise, 400Hz in Hybrid Mode */
 
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT, ADDR_7_BIT, &rng, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT, ADDR_7_BIT, &resol, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT, ADDR_7_BIT, &cr1, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT, ADDR_7_BIT, &hybrid, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT, ADDR_7_BIT, &hymode, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &rng, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &resol, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &cr1, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &hybrid, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &hymode, ADDR_ARRAY);
 
 
     cr1[1] |= CTRL_REG1_ACT;
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT, ADDR_7_BIT, &cr1, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &cr1, ADDR_ARRAY);
 
     return true;
 }
@@ -92,7 +92,7 @@ bool fxos8700_read(I2C_TypeDef *ptr, uint8_t range, int16_t *buf, uint32_t len) 
     int16_t mag_y_raw = 0;
     int16_t mag_z_raw = 0;
 
-    i2c_std_read(ptr, ADDR_FXOS8700, ADDR_7_BIT, ADDR_7_BIT, &addr_status, ADDR, &raw_data, RAW_DATA_ARRAY);
+    i2c_std_read(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &addr_status, ADDR, &raw_data, RAW_DATA_ARRAY);
 
     accel_x_raw = ((((int16_t)raw_data[1]) << 8) | (((int16_t)raw_data[2]) << 0)) >> 2;
     accel_y_raw = ((((int16_t)raw_data[3]) << 8) | (((int16_t)raw_data[4]) << 0)) >> 2;

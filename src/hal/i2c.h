@@ -6,8 +6,8 @@
 //#define I2C2_BASE           (uint32_t)0x40005800 Does not exist in the 432KC
 #define I2C3_BASE           (uint32_t)0x40005C00
 
-#define ADDR_7_BIT          false
-#define ADDR_10_BIT         false
+#define ADDR_7_BIT_ACT      false
+#define ADDR_10_BIT_ACT     true
 
 
 /* Register Pointer Structure */
@@ -44,6 +44,6 @@ bool i2c_write_u8(I2C_TypeDef *ptr, uint8_t byte);
 
 /* Public Combined Functions */
 void i2c_std_read(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* buf_write, uint32_t len_write,  uint8_t* buf_read, uint32_t len_read);
-bool i2c_std_write(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* buf, uint32_t len);
-uint8_t i2c_std_read_u8(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* byte_write);
+uint8_t i2c_std_write(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t* buf, uint32_t len);
+uint8_t i2c_std_read_u8(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint8_t byte_write);
 #endif /* I2C_H_ */

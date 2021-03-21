@@ -40,7 +40,7 @@ static void set_pwm_freq(I2C_TypeDef *ptr, uint32_t freq);
 static void set_pwm(I2C_TypeDef *ptr, uint8_t pin_num, uint16_t on, uint16_t off);
 
 bool pca9685_init(I2C_TypeDef *ptr, uint32_t freq) {
-    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT, ADDR_7_BIT, &reset, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &reset, ADDR_ARRAY);
 
     volatile uint32_t i = 0;
     if (i < 100000) { // PLACE A SEQUENCE TIMER HERE
@@ -51,7 +51,7 @@ bool pca9685_init(I2C_TypeDef *ptr, uint32_t freq) {
 }
 
 bool pca9685_reset(I2C_TypeDef *ptr, uint32_t freq) {
-    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT, ADDR_7_BIT, &reset, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &reset, ADDR_ARRAY);
 
     volatile uint32_t i = 0;
     if (i < 100000) { // PLACE A SEQUENCE TIMER HERE
@@ -102,25 +102,25 @@ static void set_pwm_freq(I2C_TypeDef *ptr, uint32_t freq) {
         prescale_val = (uint8_t)prescale;
     }
 
-    uint8_t old_mode = i2c_std_read_u8(ptr, ADDR_PCA9685, ADDR_7_BIT, ADDR_7_BIT, MODE1_REG);
+    uint8_t old_mode = i2c_std_read_u8(ptr, ADDR_PCA9685, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, MODE1_REG);
     uint8_t sleep[ADDR_ARRAY] = {MODE1_REG, ((old_mode & !MODE1_RESTART) | MODE1_SLEEP)};
     uint8_t pres[ADDR_ARRAY] = {PRESCALE_REG, prescale_val};
     uint8_t awake[ADDR_ARRAY] = {MODE1_REG, old_mode};
     uint8_t start[ADDR_ARRAY] = {MODE1_REG, old_mode | MODE1_START};
 
-    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT, ADDR_7_BIT, &sleep, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT, ADDR_7_BIT, &pres, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT, ADDR_7_BIT, &awake, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &sleep, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &pres, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &awake, ADDR_ARRAY);
 
     volatile uint32_t i = 0;
     if (i < 100000) { // PLACE A SEQUENCE TIMER HERE
         i++;
     }
 
-    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT, ADDR_7_BIT, &awake, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &awake, ADDR_ARRAY);
 }
 
 static void set_pwm(I2C_TypeDef *ptr, uint8_t pin_num, uint16_t on, uint16_t off) {
     uint8_t pwm[PWM_ARRAY] = {LED0_ON_L + 4 * pin_num, (uint8_t)on, (uint8_t)(on >> SHIFT_BYTE), (uint8_t)off, (uint8_t)(off >> SHIFT_BYTE)};
-    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT, ADDR_7_BIT, &pwm, PWM_ARRAY);
+    i2c_std_write(ptr, ADDR_PCA9685, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &pwm, PWM_ARRAY);
 }
