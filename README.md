@@ -15,4 +15,4 @@ https://www.st.com/resource/en/programming_manual/dm00046982-stm32-cortexm4-mcus
 Board Specifics
 https://www.st.com/resource/en/datasheet/stm32l432kc.pdf
 
-I will working on understanding MAKEFILEs after this initial testing of I2C and SPI, this project is derived from my Embedded Rust Project.
+I will working on understanding MAKEFILEs after this initial testing of I2C, this project is derived from my Embedded Rust Project.
