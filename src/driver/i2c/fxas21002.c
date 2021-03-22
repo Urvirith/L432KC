@@ -1,6 +1,5 @@
 #include "fxas21002.h"
-#include "../../hal/i2c.h"
-#include "../../hal/usart.h"
+#include "i2c.h"
 
 // Library for use of the fxos8700
 // This will set to high accuracy accel and magnotometer

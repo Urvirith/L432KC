@@ -1,7 +1,7 @@
 #ifndef FXOS8700_H_
 #define FXOS8700_H_
 
-#include "common.h"
+#include "../../hal/common.h"
 
 /* Enumerations */
 /* Sensitivity of the accelerometer */

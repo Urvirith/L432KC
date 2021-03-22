@@ -10,6 +10,7 @@
 #include "hal/usart.h"
 #include "hal/i2c.h"
 #include "driver/i2c/fxas21002.h"
+//#include "driver/i2c/fxos8700.h"
 
 /*REMOVE WITH MAKE FILE*/
 #include "hal/common.c"
@@ -19,6 +20,7 @@
 #include "hal/usart.c"
 #include "hal/i2c.c"
 #include "driver/i2c/fxas21002.c"
+//#include "driver/i2c/fxos8700.c"
 
 /*---------------------*/
 #define RCC                 ((RCC_TypeDef *) RCC_BASE)
@@ -64,33 +66,43 @@ extern void start() {
     }
 
     fxas210002_init(I2C1, Fxas21002_Gyro_250DPS);
-    
-    uint8_t buf[8] = {0x03, 0x00, 0x00, 0x00 ,0x00, 0x00, 0x00, 0x0D};
+    //fxos8700_init(I2C1, Fxos8700_Accel_2G);
 
-    //uint8_t dogmeat[LEN] = {0x44, 0x6F, 0x67, 0x6D, 0x65, 0x61, 0x74, 0x0D};
-    
+    uint8_t buf_fxas[8] = {0x03, 0x00, 0x00, 0x00 ,0x00, 0x00, 0x00, 0x0D};
+    uint16_t buffer_fxas[3] = {0, 0, 0};
+    //uint8_t buf_fxos[14] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ,0x00, 0x00, 0x00, 0x0D};
+    //uint16_t buffer_fxos[6] = {0, 0, 0, 0, 0, 0};
+
     int i = 0;
-    int j = 0;
     
     while (1) {
         if (timer_get_flag(TIMER2)) {
-            //if (j >= 10) {
-            //    usart_write(USART2, dogmeat, LEN);
-            //    j = 0;
-            //}
+            fxas210002_read(I2C1, Fxas21002_Gyro_250DPS, buffer_fxas, 3);
+            buf_fxas[1] = (uint8_t) ((buffer_fxas[0] >> 8) & 0xFF);
+            buf_fxas[2] = (uint8_t) ((buffer_fxas[0] >> 0) & 0xFF);
+            buf_fxas[3] = (uint8_t) ((buffer_fxas[1] >> 8) & 0xFF);
+            buf_fxas[4] = (uint8_t) ((buffer_fxas[1] >> 0) & 0xFF);
+            buf_fxas[5] = (uint8_t) ((buffer_fxas[2] >> 8) & 0xFF);
+            buf_fxas[6] = (uint8_t) ((buffer_fxas[2] >> 0) & 0xFF);
 
-            //j++;
+            /*
+            fxos8700_read(I2C1, Fxos8700_Accel_2G, buffer_fxos, 6);
+            buf_fxos[1] = (uint8_t) ((buffer_fxos[0] >> 8) & 0xFF);
+            buf_fxos[2] = (uint8_t) ((buffer_fxos[0] >> 0) & 0xFF);
+            buf_fxos[3] = (uint8_t) ((buffer_fxos[1] >> 8) & 0xFF);
+            buf_fxos[4] = (uint8_t) ((buffer_fxos[1] >> 0) & 0xFF);
+            buf_fxos[5] = (uint8_t) ((buffer_fxos[2] >> 8) & 0xFF);
+            buf_fxos[6] = (uint8_t) ((buffer_fxos[2] >> 0) & 0xFF);
+            buf_fxos[7] = (uint8_t) ((buffer_fxos[3] >> 8) & 0xFF);
+            buf_fxos[8] = (uint8_t) ((buffer_fxos[3] >> 0) & 0xFF);
+            buf_fxos[9] = (uint8_t) ((buffer_fxos[4] >> 8) & 0xFF);
+            buf_fxos[10] = (uint8_t) ((buffer_fxos[4] >> 0) & 0xFF);
+            buf_fxos[11] = (uint8_t) ((buffer_fxos[5] >> 8) & 0xFF);
+            buf_fxos[12] = (uint8_t) ((buffer_fxos[5] >> 0) & 0xFF);
+            */
 
-            uint16_t buffer[3] = {0, 0, 0};
-            fxas210002_read(I2C1, Fxas21002_Gyro_250DPS, buffer, 3);
-            buf[1] = (uint8_t) ((buffer[0] >> 8) & 0xFF);
-            buf[2] = (uint8_t) ((buffer[0] >> 0) & 0xFF);
-            buf[3] = (uint8_t) ((buffer[1] >> 8) & 0xFF);
-            buf[4] = (uint8_t) ((buffer[1] >> 0) & 0xFF);
-            buf[5] = (uint8_t) ((buffer[2] >> 8) & 0xFF);
-            buf[6] = (uint8_t) ((buffer[2] >> 0) & 0xFF);
-
-            usart_write(USART2, buf, 8);
+            usart_write(USART2, buf_fxas, 8);
+            //usart_write(USART2, buf_fxos, 14);
 
             if (i == 0) {
                 gpio_set_pin(GPIOB, USER_LED_BIT);

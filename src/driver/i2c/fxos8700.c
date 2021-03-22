@@ -1,5 +1,5 @@
 #include "fxos8700.h"
-#include "i2c.h"
+#include "../../hal/i2c.h"
 
 // Library for use of the fxos8700
 // This will set to high accuracy accel and magnotometer
@@ -39,18 +39,14 @@
 #define ADDR                    1
 #define RAW_DATA_ARRAY          13
 
-/* CONSTANTS */
-const uint8_t reset[ADDR_ARRAY] =       {CTRL_REG2, CTRL_REG2_RESET};
-const uint8_t resol[ADDR_ARRAY] =       {CTRL_REG2, CTRL_REG2_HIGH_RES};                                       /* High resolution */ 
-const uint8_t hybrid[ADDR_ARRAY] =      {MCTRL_REG1, (CTRL_MREG1_ACAL | CTRL_MREG1_HMS | CTRL_MREG1_OSR)};     /* Hybrid Mode, Over Sampling Rate = 16 */
-const uint8_t hymode[ADDR_ARRAY] =      {MCTRL_REG2, CTRL_MREG2_HYB};                                          /* Jump to reg 0x33 after reading 0x06 */ // Might need a 1 << 5
-const uint8_t addr_status[ADDR] =       {ACCEL_REG_STATUS};
-
 bool fxos8700_init(I2C_TypeDef *ptr, uint8_t range) {
     uint32_t i = 0;
-    //let mut cr1;
+    uint8_t reset[ADDR_ARRAY] =       {CTRL_REG2, CTRL_REG2_RESET};
+    uint8_t resol[ADDR_ARRAY] =       {CTRL_REG2, CTRL_REG2_HIGH_RES};                                       /* High resolution */ 
+    uint8_t hybrid[ADDR_ARRAY] =      {MCTRL_REG1, (CTRL_MREG1_ACAL | CTRL_MREG1_HMS | CTRL_MREG1_OSR)};     /* Hybrid Mode, Over Sampling Rate = 16 */
+    uint8_t hymode[ADDR_ARRAY] =      {MCTRL_REG2, CTRL_MREG2_HYB}; 
 
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &reset, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, reset, ADDR_ARRAY);
 
     while ((i2c_std_read_u8(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, CTRL_REG2) & CTRL_REG2_RESET) == CTRL_REG2_RESET) {
         if (i > INDEX_BREAK) {
@@ -62,15 +58,15 @@ bool fxos8700_init(I2C_TypeDef *ptr, uint8_t range) {
     uint8_t rng[ADDR_ARRAY] = {CTRL_XYZ, range};
     uint8_t cr1[ADDR_ARRAY] = {CTRL_REG1, CTRL_REG1_LOW_NOISE | CTRL_REG1_DR400};    /* Active, Normal Mode, Low Noise, 400Hz in Hybrid Mode */
 
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &rng, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &resol, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &cr1, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &hybrid, ADDR_ARRAY);
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &hymode, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, rng, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, resol, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, cr1, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, hybrid, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, hymode, ADDR_ARRAY);
 
 
     cr1[1] |= CTRL_REG1_ACT;
-    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &cr1, ADDR_ARRAY);
+    i2c_std_write(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, cr1, ADDR_ARRAY);
 
     return true;
 }
@@ -81,6 +77,7 @@ bool fxos8700_read(I2C_TypeDef *ptr, uint8_t range, int16_t *buf, uint32_t len) 
         return false;
     }
 
+    uint8_t addr_status[ADDR] =       {ACCEL_REG_STATUS};
     uint8_t raw_data[RAW_DATA_ARRAY] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int16_t accel_x_raw = 0;
     int16_t accel_y_raw = 0;
@@ -92,7 +89,7 @@ bool fxos8700_read(I2C_TypeDef *ptr, uint8_t range, int16_t *buf, uint32_t len) 
     int16_t mag_y_raw = 0;
     int16_t mag_z_raw = 0;
 
-    i2c_std_read(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, &addr_status, ADDR, &raw_data, RAW_DATA_ARRAY);
+    i2c_std_read(ptr, ADDR_FXOS8700, ADDR_7_BIT_ACT, ADDR_7_BIT_ACT, addr_status, ADDR, raw_data, RAW_DATA_ARRAY);
 
     accel_x_raw = ((((int16_t)raw_data[1]) << 8) | (((int16_t)raw_data[2]) << 0)) >> 2;
     accel_y_raw = ((((int16_t)raw_data[3]) << 8) | (((int16_t)raw_data[4]) << 0)) >> 2;
@@ -103,19 +100,19 @@ bool fxos8700_read(I2C_TypeDef *ptr, uint8_t range, int16_t *buf, uint32_t len) 
 
     switch(range) {
         case Fxos8700_Accel_2G:
-            int16_t accel_x_scale = (accel_x_raw * 10) / ACCEL_MG_RANGE_2G;
-            int16_t accel_y_scale = (accel_y_raw * 10) / ACCEL_MG_RANGE_2G;
-            int16_t accel_z_scale = (accel_z_raw * 10) / ACCEL_MG_RANGE_2G;
+            accel_x_scale = (accel_x_raw * 10) / ACCEL_MG_RANGE_2G;
+            accel_y_scale = (accel_y_raw * 10) / ACCEL_MG_RANGE_2G;
+            accel_z_scale = (accel_z_raw * 10) / ACCEL_MG_RANGE_2G;
             break;
         case Fxos8700_Accel_4G:
-            int16_t accel_x_scale = (accel_x_raw * 10) / ACCEL_MG_RANGE_4G;
-            int16_t accel_y_scale = (accel_y_raw * 10) / ACCEL_MG_RANGE_4G;
-            int16_t accel_z_scale = (accel_z_raw * 10) / ACCEL_MG_RANGE_4G;
+            accel_x_scale = (accel_x_raw * 10) / ACCEL_MG_RANGE_4G;
+            accel_y_scale = (accel_y_raw * 10) / ACCEL_MG_RANGE_4G;
+            accel_z_scale = (accel_z_raw * 10) / ACCEL_MG_RANGE_4G;
             break;
         case Fxos8700_Accel_8G:
-            int16_t accel_x_scale = (accel_x_raw * 10) / ACCEL_MG_RANGE_8G;
-            int16_t accel_y_scale = (accel_y_raw * 10) / ACCEL_MG_RANGE_8G;
-            int16_t accel_z_scale = (accel_z_raw * 10) / ACCEL_MG_RANGE_8G;
+            accel_x_scale = (accel_x_raw * 10) / ACCEL_MG_RANGE_8G;
+            accel_y_scale = (accel_y_raw * 10) / ACCEL_MG_RANGE_8G;
+            accel_z_scale = (accel_z_raw * 10) / ACCEL_MG_RANGE_8G;
             break;
         default:
             break;
