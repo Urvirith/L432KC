@@ -2,6 +2,7 @@
 #define FXAS21002_H_
 
 #include "../../hal/common.h"
+#include "../../hal/i2c.h"
 
 /* Enumerations */
 /* Sensitivity of Gyro Scope in DPS */

@@ -2,6 +2,7 @@
 #define FXOS8700_H_
 
 #include "../../hal/common.h"
+#include "../../hal/i2c.h"
 
 /* Enumerations */
 /* Sensitivity of the accelerometer */

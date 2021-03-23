@@ -1,5 +1,4 @@
 #include "pca9685.h"
-#include "i2c.h"
 
 // Library for use of the fxos8700
 // This will set to high accuracy accel and magnotometer

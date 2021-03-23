@@ -1,5 +1,4 @@
 #include "mcp6050.h"
-#include "i2c.h"
 
 // AREA FOR THE GY-521 / MCP6050
 #define ADDR_MCP_0              0x68

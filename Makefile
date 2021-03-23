@@ -1,8 +1,103 @@
-  # the compiler: gcc for C program, define as g++ for C++
-  CC = arm-none-eabi-gcc
+# ARM GCC COMPILER CALL
+CC		    := arm-none-eabi-gcc		# c compiler
+AS			:= arm-none-eabi-as			# assembler
+LD 			:= arm-none-eabi-ld 		# linker
+OBJ 		:= arm-none-eabi-objcopy	# Object Copy
 
-  # compiler flags:
-  #  -Os    			Optimizes for size
-  #  -mcpu=cortex-m4	Targets the ARM M4 Processor
-  #  -mthumb			Targets thumb instruction set
-  CFLAGS  = -Os -mcpu=cortex-m4 -mthumb
+# -Os				Optimize for Size
+# -mcpu=cortex-m4	Compile for the ARM M4 Processor
+# mthumb			Target the MTHUMB Instruction Set
+CFLAGS	  	:= -Os -mcpu=cortex-m4 -mthumb
+ASFLAGS		:= -mcpu=cortex-m4 -mthumb
+LDFLAGS 	:= -T 
+OBJFLAGS	:= -O binary
+
+SRC_DIR   := ./src
+HAL_DIR   := ./src/hal
+I2C_DRI   := ./src/driver/i2c
+BUILD_DIR := ./build
+
+#	EXAMPLE OF AUTOMATIC VARIABLES
+#	%.o: %.c %.h common.h
+#		$(CC) $(CFLAGS) -c $<
+#
+#	$@ Looks at the target
+#	(Target)
+#	%.o: 			%.c %.h common.h
+#	
+#	$< Looks at the first source
+#			(First Source)
+#	%.o: 	%.c 					%.h common.h
+#		$(CC) $(CFLAGS) -c $<
+#	$^ Looks at the first source
+#			(All Source)
+#	%.o: 	%.c %.h common.h
+#		$(CC) $(CFLAGS) -c $^
+
+SRC_DIR   := ./src
+HAL_DIR   := ./src/hal
+I2C_DRI   := ./src/driver/i2c
+OBJ_DIR	  := obj/
+BIN_DIR	  := bin/
+BLD_DIR	  := ./build
+
+OBJS = $(OBJ_DIR)common.o \
+			$(OBJ_DIR)gpio.o \
+				$(OBJ_DIR)i2c.o \
+					$(OBJ_DIR)rcc.o \
+						$(OBJ_DIR)timer.o \
+							$(OBJ_DIR)usart.o \
+								$(OBJ_DIR)fxas21002.o \
+									$(OBJ_DIR)main.o
+
+#	EXAMPLE OF AUTOMATIC VARIABLES
+#	%.o: %.c %.h common.h
+#		$(CC) $(CFLAGS) -c $<
+#
+#	$@ Looks at the target
+#	(Target)
+#	%.o: 			%.c %.h common.h
+#	
+#	$< Looks at the first source
+#			(First Source)
+#	%.o: 	%.c 					%.h common.h
+#		$(CC) $(CFLAGS) -c $<
+#	$^ Looks at the first source
+#			(All Source)
+#	%.o: 	%.c %.h common.h
+#		$(CC) $(CFLAGS) -c $^
+release: bin/main.bin
+
+# Build An ELF 
+bin/main.bin: bin/main.elf
+	$(OBJ) $(OBJFLAGS) $^ $@
+
+# Build An ELF 
+bin/main.elf: $(BUILD_DIR)/gcc_arm.ld bin/main.o $(BIN_DIR)startup.o
+	$(LD) -Os -s $(LDFLAGS) $^ -o $@
+
+# Build An Single Object 
+bin/main.o: $(OBJS)
+	$(LD) -r $^ -o $@
+
+# Build Dependances
+$(BIN_DIR)startup.o: $(BLD_DIR)/startup_ARMCM4.S
+	$(AS) $< $(ASFLAGS) -o $@
+
+$(OBJ_DIR)%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
+	$(CC) $(CFLAGS) -c  $< -o $@
+
+$(OBJ_DIR)%.o: $(I2C_DRI)/%.c $(I2C_DRI)/%.h $(HAL_DIR)/i2c.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)%.o: $(HAL_DIR)/%.c $(HAL_DIR)/%.h $(HAL_DIR)/common.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJ_DIR)*.o
+	rm -f $(BIN_DIR)*.o
+	rm -f $(BIN_DIR)*.elf
+	rm -f $(BIN_DIR)*.bin
+
+flash:
+	st-flash write $(BIN_DIR)main.bin 0x08000000

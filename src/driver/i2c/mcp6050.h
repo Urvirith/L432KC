@@ -1,7 +1,8 @@
 #ifndef MCP6050_H_
 #define MCP6050_H_
 
-#include "common.h"
+#include "../../hal/common.h"
+#include "../../hal/i2c.h"
 
 /* Public Functions */
 void mcp6050_init(I2C_TypeDef *ptr);

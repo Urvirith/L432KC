@@ -1,7 +1,8 @@
 #ifndef PCA9685_H_
 #define PCA9685_H_
 
-#include "common.h"
+#include "../../hal/common.h"
+#include "../../hal/i2c.h"
 
 /* Enumerations */
 /* Possible PINS on PCA9685 */

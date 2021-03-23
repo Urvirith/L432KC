@@ -13,13 +13,13 @@
 //#include "driver/i2c/fxos8700.h"
 
 /*REMOVE WITH MAKE FILE*/
-#include "hal/common.c"
-#include "hal/gpio.c"
-#include "hal/rcc.c"
-#include "hal/timer.c"
-#include "hal/usart.c"
-#include "hal/i2c.c"
-#include "driver/i2c/fxas21002.c"
+//#include "hal/common.c"
+//#include "hal/gpio.c"
+//#include "hal/rcc.c"
+//#include "hal/timer.c"
+//#include "hal/usart.c"
+//#include "hal/i2c.c"
+//#include "driver/i2c/fxas21002.c"
 //#include "driver/i2c/fxos8700.c"
 
 /*---------------------*/
@@ -64,9 +64,15 @@ extern void start() {
     while (!timer_get_flag(TIMER2)) {
 
     }
+    timer_clr_flag(TIMER2);
 
     fxas210002_init(I2C1, Fxas21002_Gyro_250DPS);
     //fxos8700_init(I2C1, Fxos8700_Accel_2G);
+
+    while (!timer_get_flag(TIMER2)) {
+
+    }
+    timer_clr_flag(TIMER2);
 
     uint8_t buf_fxas[8] = {0x03, 0x00, 0x00, 0x00 ,0x00, 0x00, 0x00, 0x0D};
     uint16_t buffer_fxas[3] = {0, 0, 0};
@@ -85,6 +91,8 @@ extern void start() {
             buf_fxas[5] = (uint8_t) ((buffer_fxas[2] >> 8) & 0xFF);
             buf_fxas[6] = (uint8_t) ((buffer_fxas[2] >> 0) & 0xFF);
 
+            usart_write(USART2, buf_fxas, 8);
+
             /*
             fxos8700_read(I2C1, Fxos8700_Accel_2G, buffer_fxos, 6);
             buf_fxos[1] = (uint8_t) ((buffer_fxos[0] >> 8) & 0xFF);
@@ -99,10 +107,9 @@ extern void start() {
             buf_fxos[10] = (uint8_t) ((buffer_fxos[4] >> 0) & 0xFF);
             buf_fxos[11] = (uint8_t) ((buffer_fxos[5] >> 8) & 0xFF);
             buf_fxos[12] = (uint8_t) ((buffer_fxos[5] >> 0) & 0xFF);
+            
+            usart_write(USART2, buf_fxos, 14);
             */
-
-            usart_write(USART2, buf_fxas, 8);
-            //usart_write(USART2, buf_fxos, 14);
 
             if (i == 0) {
                 gpio_set_pin(GPIOB, USER_LED_BIT);
