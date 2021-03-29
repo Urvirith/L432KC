@@ -43,7 +43,7 @@
 typedef struct {
     volatile uint32_t CR1;      // Control Register 1
     volatile uint32_t CR2;      // Control Register 2
-    volatile uint32_t CR3;      // Control Register 2
+    volatile uint32_t CR3;      // Control Register 3
     volatile uint32_t BRR;      // Baud Rate Register Register
     volatile uint32_t GTPR;     // Guard Time / Prescaler Register
     volatile uint32_t RTOR;     // Receiver Timeout Register
