@@ -142,11 +142,11 @@ void i2c_open(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode) {
     set_ptr_vol_bit_u32(&ptr->CR1, PE_BIT);
 }
 
-void i2c_start_bus(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode) { 
+void i2c_start_bus(I2C_TypeDef *ptr) { 
     set_ptr_vol_bit_u32(&ptr->CR1, PE_BIT);
 }
 
-void i2c_stop_bus(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode) { 
+void i2c_stop_bus(I2C_TypeDef *ptr) { 
     clr_ptr_vol_bit_u32(&ptr->CR1, PE_BIT);
 
     volatile uint32_t i = 0; // CONVERT TO FAULT TIMER, VOLITILE WILL PREVENT OPTIMIZATION

@@ -31,8 +31,8 @@ enum i2c_timing_mode {I2C_Sm_10KHz, I2C_Sm_100KHz, I2C_Fm_400KHz, I2C_Fm_Plus};
 
 /* Public Functions */
 void i2c_open(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode);
-void i2c_start_bus(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode);
-void i2c_stop_bus(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode);
+void i2c_start_bus(I2C_TypeDef *ptr);
+void i2c_stop_bus(I2C_TypeDef *ptr);
 void i2c_setup(I2C_TypeDef *ptr, uint32_t slave_addr, bool addr_10bit, bool req_10bit, uint32_t byte_cnt, bool write);
 bool i2c_start(I2C_TypeDef *ptr);
 bool i2c_stop(I2C_TypeDef *ptr);
