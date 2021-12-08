@@ -1,8 +1,11 @@
 # ARM GCC COMPILER CALL
-CC		    := arm-none-eabi-gcc		# c compiler
-AS			:= arm-none-eabi-as			# assembler
-LD 			:= arm-none-eabi-ld 		# linker
-OBJ 		:= arm-none-eabi-objcopy	# Object Copy
+
+# Toolchain To Use
+TOOLCHAIN	:= arm-none-eabi-
+CC		    := $(TOOLCHAIN)gcc		# C Compiler
+AS			:= $(TOOLCHAIN)as		# Assembler
+LD 			:= $(TOOLCHAIN)ld 		# Linker
+OBJ 		:= $(TOOLCHAIN)objcopy	# Object Copy
 
 # -Os				Optimize for Size
 # -mcpu=cortex-m4	Compile for the ARM M4 Processor
@@ -35,7 +38,7 @@ I2C_DRI   := ./src/driver/i2c
 START_DIR := ./src/startup
 LINK_DIR  := ./src/linker
 OBJ_DIR	  := ./obj
-BLD_DIR	  := ./build
+BIN_DIR	  := ./bin
 
 OBJS = $(OBJ_DIR)/common.o \
 			$(OBJ_DIR)/gpio.o \
@@ -62,22 +65,18 @@ OBJS = $(OBJ_DIR)/common.o \
 #			(All Source)
 #	%.o: 	%.c %.h common.h
 #		$(CC) $(CFLAGS) -c $^
-release: $(BLD_DIR)/main.bin
+release: $(BIN_DIR)/main.bin
 
 # Build An ELF 
-$(BLD_DIR)/main.bin: $(BLD_DIR)/main.elf
+$(BIN_DIR)/main.bin: $(BIN_DIR)/main.elf
 	$(OBJ) $(OBJFLAGS) $^ $@
 
 # Build An ELF 
-$(BLD_DIR)/main.elf: $(LINK_DIR)/gcc_arm.ld $(BLD_DIR)/main.o $(BLD_DIR)/startup.o
+$(BIN_DIR)/main.elf: $(LINK_DIR)/gcc_arm.ld $(OBJS) $(BIN_DIR)/startup.o
 	$(LD) -Os -s $(LDFLAGS) $^ -o $@
 
-# Build An Single Object 
-$(BLD_DIR)/main.o: $(OBJS)
-	$(LD) -r $^ -o $@
-
 # Build Dependances
-$(BLD_DIR)/startup.o: $(START_DIR)/startup_ARMCM4.s
+$(BIN_DIR)/startup.o: $(START_DIR)/startup_ARMCM4.s
 	$(AS) $< $(ASFLAGS) -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
@@ -91,9 +90,9 @@ $(OBJ_DIR)/%.o: $(HAL_DIR)/%.c $(HAL_DIR)/%.h $(HAL_DIR)/common.h
 
 clean:
 	rm -f $(OBJ_DIR)/*.o
-	rm -f $(BLD_DIR)/*.o
-	rm -f $(BLD_DIR)/*.elf
-	rm -f $(BLD_DIR)/*.bin
+	rm -f $(BIN_DIR)/*.o
+	rm -f $(BIN_DIR)/*.elf
+	rm -f $(BIN_DIR)/*.bin
 
 flash:
-	st-flash write $(BLD_DIR)/main.bin 0x08000000
+	st-flash write $(BIN_DIR)/main.bin 0x08000000
