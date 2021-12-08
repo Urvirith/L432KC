@@ -73,11 +73,27 @@
 #define MASK_32_BIT (uint32_t)0xFFFFFFFF
 
 // Enumeration of avaliable ranges of clocks
-enum msi_range {_100kHz, _200kHz, _400kHz, _800kHz, _1MHz, _2MHz, _4MHz, _8MHz, _16MHz, _24MHz, _32MHz, _48MHz};
+typedef enum msi_range {
+    Clk100kHz, 
+    Clk200kHz, 
+    Clk400kHz, 
+    Clk800kHz, 
+    Clk1MHz, 
+    Clk2MHz, 
+    Clk4MHz, 
+    Clk8MHz, 
+    Clk16MHz, 
+    Clk24MHz, 
+    Clk32MHz, 
+    Clk48MHz
+} MSI_Range;
+
+/* DELAY TIME FOR 50us, 1MHz = 1 Cycle Per Microsecond, Therefore 16 Mhz * 50 cycles = 800 Cycles = 50us */
+#define TIMEOUT (uint32_t)(16 * 50)
 
 /* Public Functions */
 /* 32-Bit Functions */
-bool get_ptr_vol_bit_u32(volatile uint32_t *ptr, uint32_t offset);                              /* Get a pointer bit in a u32 ptr Example value (10000 >> 5) -> 1 */
+bool get_ptr_vol_bit_u32(volatile uint32_t *ptr, uint32_t value);                               /* Get a pointer bit in a u32 ptr Example value (10000 >> 5) -> 1 */
 void set_ptr_vol_bit_u32(volatile uint32_t *ptr, uint32_t value);                               /* Set a pointer bit in a u32 ptr Example value (1 << 5) */
 void clr_ptr_vol_bit_u32(volatile uint32_t *ptr, uint32_t value);                               /* Clear a pointer bit in a u32 ptr Example value (1 << 5) */
 uint32_t get_ptr_vol_u32(volatile uint32_t *ptr, uint32_t offset, uint32_t mask);               /* Get a pointer bit in a u32 ptr Example value (10000 >> 5) -> 1 */

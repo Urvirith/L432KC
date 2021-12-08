@@ -1,7 +1,7 @@
 //DUMMY MAIN TO ALLOW FOR THE TURN ON AND OFF OF LED IN C
 //USED TO TROUBLE SHOOT REST OF CODE
 
-#include "l432kc.h"
+#include "board/l432kc.h"
 #include "main.h"
 #include "hal/common.h"
 #include "hal/gpio.h"
@@ -32,7 +32,7 @@
 #define LEN                 8
 
 extern void system_init() {
-    rcc_write_msi_range(RCC, _16MHz);
+    rcc_write_msi_range(RCC, Clk16MHz);
     rcc_write_ahb2_enr(RCC, GPIOA_RCC_AHB2_ENABLE);
     rcc_write_ahb2_enr(RCC, GPIOB_RCC_AHB2_ENABLE);
     rcc_write_apb1_enr1(RCC, TIMER2_RCC_APB1R1_ENABLE);
@@ -51,15 +51,15 @@ extern void start() {
     gpio_type(GPIOB, I2C1_SDA, Gpio_Alternate, Gpio_Open_Drain, I2C1_GPIO_AF);
     gpio_speed(GPIOB, I2C1_SCL, Gpio_Low_Speed);
     gpio_speed(GPIOB, I2C1_SDA, Gpio_Low_Speed);
-    gpio_pupd(GPIOB, I2C1_SCL, Gpio_NoPupd);
-    gpio_pupd(GPIOB, I2C1_SDA, Gpio_NoPupd);
+    gpio_pupd(GPIOB, I2C1_SCL, Gpio_NoPuPd);
+    gpio_pupd(GPIOB, I2C1_SDA, Gpio_NoPuPd);
     /* TIMER SETUP */
     timer_open(TIMER2, Timer_Cont, Timer_Upcount);
     timer_set_time(TIMER2, 500, 16000, 1500);
     timer_start(TIMER2);
     /* DRIVER SETUP */
     usart_open(USART2, USART_8_Bits, USART_1_StopBit, USART_9600_BAUD, 16000, USART_Oversample_16);
-    i2c_open(I2C1, _16MHz, I2C_Fm_400KHz);
+    i2c_open(I2C1, Clk16MHz, I2C_Fm_400KHz);
 
     while (!timer_get_flag(TIMER2)) {
 

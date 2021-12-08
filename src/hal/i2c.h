@@ -2,9 +2,6 @@
 #define I2C_H_
 
 /* Register Base */
-#define I2C1_BASE           (uint32_t)0x40005400 
-//#define I2C2_BASE           (uint32_t)0x40005800 Does not exist in the 432KC
-#define I2C3_BASE           (uint32_t)0x40005C00
 
 #define ADDR_7_BIT_ACT      false
 #define ADDR_10_BIT_ACT     true
@@ -27,7 +24,12 @@ typedef struct {
 
 /* Enumerations */
 /* Speed of I2C bus, 10KHz, 100KHz 400KHz or Plus mode */
-enum i2c_timing_mode {I2C_Sm_10KHz, I2C_Sm_100KHz, I2C_Fm_400KHz, I2C_Fm_Plus};
+typedef enum i2c_timing_mode {
+    I2C_Sm_10KHz,
+    I2C_Sm_100KHz,
+    I2C_Fm_400KHz,
+    I2C_Fm_Plus
+} I2C_TimingMode;
 
 /* Public Functions */
 void i2c_open(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode);

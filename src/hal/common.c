@@ -2,8 +2,12 @@
 
 /* Get a pointer bit in a u32 ptr Example value (10000 >> 5) -> 1 
    If passing a stuct pointer ie. GPIOB->ODR, you can pass by reference &GPIO->ODR */
-bool get_ptr_vol_bit_u32(volatile uint32_t *ptr, uint32_t offset){
-    return((*ptr >> offset) & MASK_1_BIT); 
+bool get_ptr_vol_bit_u32(volatile uint32_t *ptr, uint32_t value) {
+    if ((*ptr & value) > 0) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /* Set a pointer bit in a u32 ptr Example value (1 << 5), 

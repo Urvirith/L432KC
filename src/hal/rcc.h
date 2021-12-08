@@ -8,7 +8,7 @@
 /* Reset and Clock Control (RCC) */
 
 /* Register Base */
-#define RCC_BASE             ((uint32_t)0x40021000)
+/* Defined In The Board Specific Folder */
 
 /* Register Pointer Structure */
 typedef struct {
@@ -54,7 +54,7 @@ typedef struct {
 } RCC_TypeDef;
 
 /* Public Functions */
-void rcc_write_msi_range(RCC_TypeDef *ptr, uint32_t freq_khz);
+void rcc_write_msi_range(RCC_TypeDef *ptr, MSI_Range freq_khz);
 void rcc_write_ahb1_enr(RCC_TypeDef *ptr, uint32_t bit_num);
 void rcc_write_ahb2_enr(RCC_TypeDef *ptr, uint32_t bit_num);
 void rcc_write_ahb3_enr(RCC_TypeDef *ptr, uint32_t bit_num);

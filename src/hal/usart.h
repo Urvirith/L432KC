@@ -3,7 +3,9 @@
 
 // USART DRIVER
 // ARM USART MODULE
-// USART Description - is on pg 1194
+// USART Description - is on pg 1559
+
+/* Universal Synchronous/Asynchronous Receiver Transmitter */
 
     // Any USART bidirectional communication requires a minimum of two pins: Receive data In (RX) and Transmit data Out (TX):
     // • RX: Receive data Input. This is the serial data input.
@@ -34,31 +36,49 @@
     // The following pin is required in RS485 Hardware control mode:
     // • DE: Driver Enable activates the transmission mode of the external transceiver.
 
-/* Register Base */
-#define USART1_BASE         (uint32_t)0x40013800
-#define USART2_BASE         (uint32_t)0x40004400
-#define USART3_BASE         (uint32_t)0x40004800
-
 /* Register Pointer Structure */
 typedef struct {
-    volatile uint32_t CR1;      // Control Register 1
-    volatile uint32_t CR2;      // Control Register 2
-    volatile uint32_t CR3;      // Control Register 3
-    volatile uint32_t BRR;      // Baud Rate Register Register
-    volatile uint32_t GTPR;     // Guard Time / Prescaler Register
-    volatile uint32_t RTOR;     // Receiver Timeout Register
-    volatile uint32_t RQR;      // Request Register
-    volatile uint32_t ISR;      // Interrupt And Status Register
-    volatile uint32_t ICR;      // Interrupt Flag Clear Register
-    volatile uint32_t RDR;      // Receive Data Register
-    volatile uint32_t TDR;      // Transmit Data Register
+    volatile uint32_t CR1;              // Control Register 1
+    volatile uint32_t CR2;              // Control Register 2
+    volatile uint32_t CR3;              // Control Register 3
+    volatile uint32_t BRR;              // Baud Rate Register Register
+    volatile uint32_t GTPR;             // Guard Time / Prescaler Register
+    volatile uint32_t RTOR;             // Receiver Timeout Register
+    volatile uint32_t RQR;              // Request Register
+    volatile uint32_t ISR;              // Interrupt And Status Register
+    volatile uint32_t ICR;              // Interrupt Flag Clear Register
+    volatile uint32_t RDR;              // Receive Data Register
+    volatile uint32_t TDR;              // Transmit Data Register
 } USART_TypeDef;
 
+#define SCLK_HZ             1000
+#define RTO_TIMEO_VALUE     10
+
 /* Enumerations */
-enum usart_over_sample {USART_Oversample_16, USART_Oversample_8};
-enum usart_word_length {USART_8_Bits, USART_9_Bits, USART_7_Bits};
-enum usart_stop_length {USART_1_StopBit, USART_0_5_StopBit, USART_2_StopBit, USART_1_5_StopBit};
-enum usart_baud_rate {
+
+/* Enumeration For Oversample */
+typedef enum usart_over_sample {
+    USART_Oversample_16,
+    USART_Oversample_8
+} USART_OverSample;
+
+/* Enumeration For Word Length */
+typedef enum usart_word_length {
+    USART_8_Bits,
+    USART_9_Bits,
+    USART_7_Bits
+} USART_WordLength;
+
+/* Enumeration For Stop Length */
+typedef enum usart_stop_length {
+    USART_1_StopBit,
+    USART_0_5_StopBit,
+    USART_2_StopBit,
+    USART_1_5_StopBit
+} USART_StopLength;
+
+/* Enumeration For Baud Rate */
+typedef enum usart_baud_rate {
     USART_1200_BAUD      = 1200, 
     USART_1800_BAUD      = 1800,
     USART_2400_BAUD      = 2400, 
@@ -74,10 +94,12 @@ enum usart_baud_rate {
     USART_460800_BAUD    = 460800, 
     USART_576000_BAUD    = 576000,
     USART_921600_BAUD    = 921600, 
-};
+} USART_BaudRate;
 
 /* Public Functions */
-void usart_open(USART_TypeDef *ptr, uint32_t word_len, uint32_t stop, uint32_t baud, uint32_t sclk_khz, uint32_t over8);
+
+/* Open USART Driver(USART Pointer, Word Length, Stop Length, Baud Rate, Clock Rate KHz, Over Sample - 8 or 16) */
+void usart_open(USART_TypeDef *ptr, USART_WordLength word_len, USART_StopLength stop, USART_BaudRate baud, uint32_t sclk_khz, USART_OverSample over8);
 bool usart_get_read(USART_TypeDef *ptr);
 int usart_read(USART_TypeDef *ptr, uint8_t* buf, int len);
 void usart_write(USART_TypeDef *ptr, uint8_t* buf, int len);

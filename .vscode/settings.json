@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "i2c.h": "c",
-        "mcp6050.h": "c"
+        "mcp6050.h": "c",
+        "timer.h": "c"
     }
 }

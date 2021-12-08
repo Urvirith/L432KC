@@ -15,23 +15,28 @@
 #define SCL_MASK            MASK_8_BIT
 #define DEL_MASK            MASK_4_BIT
 
+
 /* Register Bits */
 /* CR1 */
 #define PE_BIT              BIT_0
 /* CR2 */
-#define RD_WRN_BIT          BIT_10      // Transfer direction (master mode) 0: Master requests a write transfer. 1: Master requests a read transfer.
-#define ADDR_10_BIT         BIT_11      // 10-bit addressing mode (master mode) 0: The master operates in 7-bit addressing mode, 1: The master operates in 10-bit addressing mode
-#define HEAD_10_BIT         BIT_12      // 10-bit address header only read direction (master receiver mode) 0: The master sends the complete 10 bit slave address read sequence:
-                                        // Start + 2 bytes 10bit address in write direction + Restart + 1st 7 bits of the 10 bit address in read direction.
-                                        // 1: The master only sends the 1st 7 bits of the 10 bit address, followed by Read direction.
-#define START_BIT           BIT_13      // This bit is set by software, and cleared by hardware after the Start followed by the address sequence is sent, by an arbitration loss, by a timeout error detection, or when PE = 0.
-                                        // It can also be cleared by software by writing ‘1’ to the ADDRCF bit in the I2C_ICR register. 0: No Start generation. 1: Restart/Start generation:
-#define STOP_BIT            BIT_14      // The bit is set by software, cleared by hardware when a STOP condition is detected, or when PE = 0. In Master Mode: 0: No Stop generation. 1: Stop generation after current byte transfer.
-#define NACK_BIT            BIT_15      // The bit is set by software, cleared by hardware when the NACK is sent, or when a STOP condition or an Address matched is received, or when PE=0. 0: an ACK is sent after current received byte. 1: a NACK is sent after current received byte.
-#define RELOAD_BIT          BIT_24      // 0: The transfer is completed after the NBYTES data transfer (STOP or RESTART follows). 1: The transfer is not completed after the NBYTES data transfer (NBYTES is reloaded). TCR flag is set when NBYTES data are transferred, stretching SCL low.
-#define AUTOEND_BIT         BIT_25      // 0: software end mode: TC flag is set when NBYTES data are transferred, stretching SCL low. 1: Automatic end mode: a STOP condition is automatically sent when NBYTES data are transferred.
+#define RD_WRN_BIT          BIT_10          // Transfer direction (master mode) 0: Master requests a write transfer. 1: Master requests a read transfer.
+#define ADDR_10_BIT         BIT_11          // 10-bit addressing mode (master mode) 0: The master operates in 7-bit addressing mode, 1: The master operates in 10-bit addressing mode
+#define HEAD_10_BIT         BIT_12          // 10-bit address header only read direction (master receiver mode) 0: The master sends the complete 10 bit slave address read sequence:
+                                            // Start + 2 bytes 10bit address in write direction + Restart + 1st 7 bits of the 10 bit address in read direction.
+                                            // 1: The master only sends the 1st 7 bits of the 10 bit address, followed by Read direction.
+#define START_BIT           BIT_13          // This bit is set by software, and cleared by hardware after the Start followed by the address sequence is sent, by an arbitration loss, by a timeout error detection, or when PE = 0.
+                                            // It can also be cleared by software by writing ‘1’ to the ADDRCF bit in the I2C_ICR register. 0: No Start generation. 1: Restart/Start generation:
+#define STOP_BIT            BIT_14          // The bit is set by software, cleared by hardware when a STOP condition is detected, or when PE = 0. In Master Mode: 0: No Stop generation. 1: Stop generation after current byte transfer.
+#define NACK_BIT            BIT_15          // The bit is set by software, cleared by hardware when the NACK is sent, or when a STOP condition or an Address matched is received, or when PE=0. 0: an ACK is sent after current received byte. 1: a NACK is sent after current received byte.
+#define RELOAD_BIT          BIT_24          // 0: The transfer is completed after the NBYTES data transfer (STOP or RESTART follows). 1: The transfer is not completed after the NBYTES data transfer (NBYTES is reloaded). TCR flag is set when NBYTES data are transferred, stretching SCL low.
+#define AUTOEND_BIT         BIT_25          // 0: software end mode: TC flag is set when NBYTES data are transferred, stretching SCL low. 1: Automatic end mode: a STOP condition is automatically sent when NBYTES data are transferred.
 
-
+/* ISR */
+// CONST FOR THE ISR AND ICR PG. 1234
+#define TXIS_BIT            BIT_1
+#define RXNE_BIT            BIT_2
+#define TC_BIT              BIT_6
 
 
 /* Register Offsets */
@@ -54,12 +59,6 @@
 #define READ                false
 #define WRITE               true
 #define LEN_1_BYTE          1
-
-/* ISR */
-// CONST FOR THE ISR AND ICR PG. 1234
-#define I2C_TXIS_OFFSET         1
-#define I2C_RXNE_OFFSET         2
-#define I2C_TC_OFFSET           6
      
 /* Private Functions */
 static void set_timing_register(I2C_TypeDef *ptr, uint32_t scll, uint32_t sclh, uint32_t sdadel, uint32_t scldel, uint32_t presc);
@@ -77,7 +76,7 @@ void i2c_open(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode) {
     clr_ptr_vol_bit_u32(&ptr->CR1, PE_BIT);
     
     switch(sclk_mhz) {
-        case _8MHz:
+        case Clk8MHz:
             switch(mode) {
                 case I2C_Sm_10KHz:
                     set_timing_register(ptr, 0xC7, 0xC3, 0x02, 0x04, 0x01);
@@ -96,7 +95,7 @@ void i2c_open(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode) {
                     break;
             }
             break;
-        case _16MHz:
+        case Clk16MHz:
             switch(mode) {
                 case I2C_Sm_10KHz:
                     set_timing_register(ptr, 0xC7, 0xC3, 0x02, 0x04, 0x03);
@@ -115,7 +114,7 @@ void i2c_open(I2C_TypeDef *ptr, uint32_t sclk_mhz, uint32_t mode) {
                     break;
             }
             break;
-        case _48MHz:
+        case Clk48MHz:
             switch(mode) {
                 case I2C_Sm_10KHz:
                     set_timing_register(ptr, 0xC7, 0xC3, 0x02, 0x04, 0x0B);
@@ -192,7 +191,7 @@ bool i2c_start(I2C_TypeDef *ptr) {
 
     uint32_t i = 0; // CONVERT TO FAULT TIMER
 
-    while (get_ptr_vol_bit_u32(&ptr->CR2, START_OFFSET)){
+    while (get_ptr_vol_bit_u32(&ptr->CR2, START_BIT)){
         if (i > 100000) {
             return false;
         }
@@ -208,7 +207,7 @@ bool i2c_stop(I2C_TypeDef *ptr) {
 
     uint32_t i = 0; // CONVERT TO FAULT TIMER
 
-    while (get_ptr_vol_bit_u32(&ptr->CR2, STOP_OFFSET)){
+    while (get_ptr_vol_bit_u32(&ptr->CR2, STOP_BIT)){
         if (i > 1000000) {
             return false;
         }
@@ -222,7 +221,7 @@ bool i2c_stop(I2C_TypeDef *ptr) {
 bool i2c_tc(I2C_TypeDef *ptr) {
     uint32_t i = 0; // CONVERT TO FAULT TIMER
 
-    while (!get_ptr_vol_bit_u32(&ptr->ISR, I2C_TC_OFFSET)){
+    while (!get_ptr_vol_bit_u32(&ptr->ISR, TC_BIT)){
         if (i > 100000) {
             return false;
         }
@@ -251,7 +250,7 @@ bool i2c_read(I2C_TypeDef *ptr, uint8_t* buf, int len) {
     while(i < len){
         uint32_t t = 0; // CONVERT TO FAULT TIMER
 
-        while (!get_ptr_vol_bit_u32(&ptr->ISR, I2C_RXNE_OFFSET)){
+        while (!get_ptr_vol_bit_u32(&ptr->ISR, RXNE_BIT)){
             if (t > 100000) {
                 return false;
             }
@@ -268,7 +267,7 @@ bool i2c_read(I2C_TypeDef *ptr, uint8_t* buf, int len) {
 uint8_t i2c_read_u8(I2C_TypeDef *ptr) {
     uint32_t i = 0; 
 
-    while (!get_ptr_vol_bit_u32(&ptr->ISR, I2C_RXNE_OFFSET)){
+    while (!get_ptr_vol_bit_u32(&ptr->ISR, RXNE_BIT)){
         if (i > 100000) {
             return 0;
         }
@@ -329,7 +328,7 @@ bool i2c_write(I2C_TypeDef *ptr, uint8_t* buf, int len) {
     while(i < len){
         uint32_t t = 0; // CONVERT TO FAULT TIMER
 
-        while (!get_ptr_vol_bit_u32(&ptr->ISR, I2C_TXIS_OFFSET)){
+        while (!get_ptr_vol_bit_u32(&ptr->ISR, TXIS_BIT)){
             if (t > 100000) {
                 return false;
             }
@@ -345,7 +344,7 @@ bool i2c_write(I2C_TypeDef *ptr, uint8_t* buf, int len) {
 bool i2c_write_u8(I2C_TypeDef *ptr, uint8_t byte) {
     uint32_t i = 0; 
 
-    while (!get_ptr_vol_bit_u32(&ptr->ISR, I2C_TXIS_OFFSET)){
+    while (!get_ptr_vol_bit_u32(&ptr->ISR, TXIS_BIT)){
         if (i > 100000) {
             return false;
         }
