@@ -10,27 +10,11 @@ OBJ 		:= $(TOOLCHAIN)objcopy	# Object Copy
 # -Os				Optimize for Size
 # -mcpu=cortex-m4	Compile for the ARM M4 Processor
 # mthumb			Target the MTHUMB Instruction Set
-CFLAGS	  	:= -Os -mcpu=cortex-m4 -mthumb
-ASFLAGS		:= -mcpu=cortex-m4 -mthumb
+TARGET_ARCH := -mcpu=cortex-m4
+CFLAGS	  	:= -Os $(TARGET_ARCH) -mthumb
+ASFLAGS		:= $(TARGET_ARCH) -mthumb
 LDFLAGS 	:= -T 
 OBJFLAGS	:= -O binary
-
-#	EXAMPLE OF AUTOMATIC VARIABLES
-#	%.o: %.c %.h common.h
-#		$(CC) $(CFLAGS) -c $<
-#
-#	$@ Looks at the target
-#	(Target)
-#	%.o: 			%.c %.h common.h
-#	
-#	$< Looks at the first source
-#			(First Source)
-#	%.o: 	%.c 					%.h common.h
-#		$(CC) $(CFLAGS) -c $<
-#	$^ Looks at the first source
-#			(All Source)
-#	%.o: 	%.c %.h common.h
-#		$(CC) $(CFLAGS) -c $^
 
 SRC_DIR   := ./src
 HAL_DIR   := ./src/hal
@@ -95,4 +79,20 @@ clean:
 	rm -f $(BIN_DIR)/*.bin
 
 flash:
-	st-flash write $(BIN_DIR)/main.bin 0x08000000
+	STM32_Programmer_CLI -c port=SWD -w $(BLD_DIR)/main.bin 0x08000000
+
+info:
+	STM32_Programmer_CLI -c port=SWD
+
+reset:
+	STM32_Programmer_CLI -c port=SWD -rst
+
+hard_reset:
+	STM32_Programmer_CLI -c port=SWD -hardRst
+
+setup:
+	mkdir obj
+	mkdir bin
+
+# To Move The Rules
+#sudo cp ./rules/*.rules /etc/udev/rules.d/
