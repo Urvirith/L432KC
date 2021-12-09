@@ -11,17 +11,6 @@
 #include "hal/i2c.h"
 #include "driver/i2c/fxas21002.h"
 //#include "driver/i2c/fxos8700.h"
-
-/*REMOVE WITH MAKE FILE*/
-//#include "hal/common.c"
-//#include "hal/gpio.c"
-//#include "hal/rcc.c"
-//#include "hal/timer.c"
-//#include "hal/usart.c"
-//#include "hal/i2c.c"
-//#include "driver/i2c/fxas21002.c"
-//#include "driver/i2c/fxos8700.c"
-
 /*---------------------*/
 #define RCC                 ((RCC_TypeDef *) RCC_BASE)
 #define GPIOA               ((GPIO_TypeDef *) GPIOA_BASE) 

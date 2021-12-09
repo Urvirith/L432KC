@@ -3,8 +3,8 @@
 
 // NVIC DRIVER
 // ARM NVIC MODULE
-// NVIC Description - is on pg 529
-// NVIC Registers (Programming Manual) - is on 208
+// NVIC Description - is on pg 320
+// NVIC Registers (Programming Manual) - is on 320
 
 /* Nested vectored interrupt controller (NVIC) */
 
