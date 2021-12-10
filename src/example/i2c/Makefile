@@ -30,7 +30,7 @@ OBJS = $(OBJ_DIR)/common.o \
 					$(OBJ_DIR)/rcc.o \
 						$(OBJ_DIR)/timer.o \
 							$(OBJ_DIR)/usart.o \
-								$(OBJ_DIR)/nvic.o \
+								$(OBJ_DIR)/fxas21002.o \
 									$(OBJ_DIR)/main.o
 
 #	EXAMPLE OF AUTOMATIC VARIABLES

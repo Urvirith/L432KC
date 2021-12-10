@@ -66,5 +66,6 @@ void timer_set_pwm_ch1(TIMER_TypeDef *ptr);
 void timer_set_pwm_ch2(TIMER_TypeDef *ptr);
 void timer_set_pwm_ch3(TIMER_TypeDef *ptr);
 void timer_set_pwm_ch4(TIMER_TypeDef *ptr);
+void timer_ons_delay(TIMER_TypeDef * ptr, uint32_t time_us);
 
 #endif /* TIMER_H_ */

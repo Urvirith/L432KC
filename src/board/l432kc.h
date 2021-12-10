@@ -80,6 +80,7 @@
 /* TIMER */
 /* RCC */
 #define TIMER2_RCC_APB1R1_ENABLE    BIT_0
+#define TIMER7_RCC_APB1R1_ENABLE    BIT_5
 
 /* NVIC Enumerated Set Of All Interrupts On STM32L4 controllers */
 typedef enum nvic_irq {
