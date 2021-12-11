@@ -14,5 +14,7 @@ Programming Manual
 https://www.st.com/resource/en/programming_manual/dm00046982-stm32-cortexm4-mcus-and-mpus-programming-manual-stmicroelectronics.pdf
 Board Specifics
 https://www.st.com/resource/en/datasheet/stm32l432kc.pdf
+Pinout
+https://os.mbed.com/platforms/ST-Nucleo-L432KC/
 
 I will working on understanding MAKEFILEs after this initial testing of I2C, this project is derived from my Embedded Rust Project.

@@ -6,8 +6,6 @@
 #include "hal/gpio.h"
 #include "hal/rcc.h"
 #include "hal/timer.h"
-#include "hal/usart.h"
-#include "hal/i2c.h"
 #include "hal/nvic.h"
 #include "main.h"
 
@@ -18,7 +16,6 @@
 #define GPIOB               ((GPIO_TypeDef *) GPIOB_BASE)                 /* GPIO Structure Declare */
 #define TIMER2              ((TIMER_TypeDef *) TIMER2_BASE)
 #define TIMER7              ((TIMER_TypeDef *) TIMER7_BASE)
-#define USART2              ((USART_TypeDef *) USART2_BASE)
 #define NVIC                ((NVIC_TypeDef *) NVIC_BASE)
 
 extern void system_init() {
@@ -27,34 +24,24 @@ extern void system_init() {
     rcc_write_ahb2_enr(RCC, GPIOB_RCC_AHB2_ENABLE);
     rcc_write_apb1_enr1(RCC, TIMER2_RCC_APB1R1_ENABLE);
     rcc_write_apb1_enr1(RCC, TIMER7_RCC_APB1R1_ENABLE);
-    rcc_write_apb1_enr1(RCC, USART2_RCC_APB1R1_ENABLE);
     rcc_write_apb1_enr1(RCC, I2C1_RCC_APB1R1_ENABLE);
 }
 
 extern void start() { 
     /* USER LED SETUP */
     gpio_type(GPIOB, USER_LED, Gpio_Output, Gpio_Push_Pull, AF0);
-    /* USART SETUP */
-    gpio_type(GPIOA, USART2_TX, Gpio_Alternate, Gpio_Push_Pull, USART2_GPIO_AF);
-    gpio_type(GPIOA, USART2_RX, Gpio_Alternate, Gpio_Push_Pull, USART2_GPIO_AF);
-    /* I2C SETUP */
-    gpio_type(GPIOB, I2C1_SCL, Gpio_Alternate, Gpio_Open_Drain, I2C1_GPIO_AF);
-    gpio_type(GPIOB, I2C1_SDA, Gpio_Alternate, Gpio_Open_Drain, I2C1_GPIO_AF);
-    gpio_speed(GPIOB, I2C1_SCL, Gpio_Low_Speed);
-    gpio_speed(GPIOB, I2C1_SDA, Gpio_Low_Speed);
-    gpio_pupd(GPIOB, I2C1_SCL, Gpio_NoPuPd);
-    gpio_pupd(GPIOB, I2C1_SDA, Gpio_NoPuPd);
+    gpio_type(GPIOA, LED1, Gpio_Output, Gpio_Push_Pull, AF0);
+    gpio_type(GPIOA, LED2, Gpio_Output, Gpio_Push_Pull, AF0);
+    gpio_type(GPIOA, LED3, Gpio_Output, Gpio_Push_Pull, AF0);
+
     /* TIMER SETUP */
     timer_open(TIMER2, Timer_Cont, Timer_Upcount);
-    timer_set_time(TIMER2, 500, 16000, 1500);
+    timer_set_time(TIMER2, 500, 16000, 500);
     timer_start(TIMER2);
 
     timer_open(TIMER7, Timer_Ons, Timer_Upcount);
     timer_set_interrupt(TIMER7);
     timer_ons_delay(TIMER7, 500);
-
-    /* DRIVER SETUP */
-    usart_open(USART2, USART_8_Bits, USART_1_StopBit, USART_9600_BAUD, 16000, USART_Oversample_16);
 
     while (!timer_get_flag(TIMER2)) {
 
@@ -62,21 +49,38 @@ extern void start() {
     timer_clr_flag(TIMER2);
 
     nvic_enable_interrupt(NVIC, TIM7_IRQ);
-    timer_set_time(TIMER7, 1000, 16000, 1500);
+    timer_set_time(TIMER7, 1000, 16000, 1000);
     timer_start(TIMER7);
-
-    uint8_t buf_fxas[8] = {0x03, 0x00, 0x00, 0x00 ,0x00, 0x00, 0x00, 0x0D};
-    uint16_t buffer_fxas[3] = {0, 0, 0};
-    //uint8_t buf_fxos[14] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ,0x00, 0x00, 0x00, 0x0D};
-    //uint16_t buffer_fxos[6] = {0, 0, 0, 0, 0, 0};
 
     int i = 0;
     
     while (1) {
         if (timer_get_flag(TIMER2)) {
-
-            /* MAIN LED SEQUENCE HERE */
             timer_clr_flag(TIMER2);
+
+            switch(i) {
+                case 0:
+                    gpio_set_pin(GPIOA, LED1_BIT);
+                    gpio_clr_pin(GPIOA, LED2_BIT);
+                    gpio_clr_pin(GPIOA, LED3_BIT);
+                    break;
+                case 1:
+                    gpio_clr_pin(GPIOA, LED1_BIT);
+                    gpio_set_pin(GPIOA, LED2_BIT);
+                    gpio_clr_pin(GPIOA, LED3_BIT);
+                    break;
+                case 2:
+                    gpio_clr_pin(GPIOA, LED1_BIT);
+                    gpio_clr_pin(GPIOA, LED2_BIT);
+                    gpio_set_pin(GPIOA, LED3_BIT);
+                    break;
+            }
+
+            if (i < 3) {
+                i += 1;
+            } else {
+                i = 0;
+            }
         }
     }
 }

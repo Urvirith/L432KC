@@ -55,6 +55,19 @@
 #define USER_LED                    PORTB_PIN3
 #define USER_LED_BIT                BIT_3
 
+/* LED OUTPUTS */
+#define PORTA_PIN0                  0
+#define LED1                        PORTA_PIN0
+#define LED1_BIT                    BIT_0
+
+#define PORTA_PIN1                  1
+#define LED2                        PORTA_PIN1
+#define LED2_BIT                    BIT_1
+
+#define PORTA_PIN3                  3
+#define LED3                        PORTA_PIN3
+#define LED3_BIT                    BIT_3
+
 /* USART 2*/
 /* RCC */
 #define USART2_RCC_APB1R1_ENABLE    BIT_17
