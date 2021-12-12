@@ -53,10 +53,10 @@ void gpio_type(GPIO_TypeDef *ptr, uint32_t bit, GPIO_Mode mode, GPIO_OType otype
     }
 }
 
-void gpio_speed(GPIO_TypeDef *ptr, uint32_t bit, uint32_t speed) {
+void gpio_speed(GPIO_TypeDef *ptr, uint32_t bit, GPIO_OSpeed speed) {
     set_ptr_vol_u32(&ptr->OSPEEDR, bit * OSPEED_OFFSET, OSPEED_MASK, speed);
 }
 
-void gpio_pupd(GPIO_TypeDef *ptr, uint32_t bit, uint32_t pupd) {
+void gpio_pupd(GPIO_TypeDef *ptr, uint32_t bit, GPIO_PuPd pupd) {
     set_ptr_vol_u32(&ptr->PUPDR, bit * PUPD_OFFSET, PUPD_MASK, pupd);
 }

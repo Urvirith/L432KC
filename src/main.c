@@ -33,24 +33,20 @@ extern void start() {
     gpio_type(GPIOA, LED1, Gpio_Output, Gpio_Push_Pull, AF0);
     gpio_type(GPIOA, LED2, Gpio_Output, Gpio_Push_Pull, AF0);
     gpio_type(GPIOA, LED3, Gpio_Output, Gpio_Push_Pull, AF0);
+    //gpio_pupd(GPIOA, LED1, Gpio_PullDown);
 
     /* TIMER SETUP */
     timer_open(TIMER2, Timer_Cont, Timer_Upcount);
-    timer_set_time(TIMER2, 500, 16000, 500);
-    timer_start(TIMER2);
+    timer_set_time(TIMER2, 2000, 16000, 500);
 
     timer_open(TIMER7, Timer_Ons, Timer_Upcount);
     timer_set_interrupt(TIMER7);
     timer_ons_delay(TIMER7, 500);
 
-    while (!timer_get_flag(TIMER2)) {
-
-    }
-    timer_clr_flag(TIMER2);
-
     nvic_enable_interrupt(NVIC, TIM7_IRQ);
     timer_set_time(TIMER7, 1000, 16000, 1000);
     timer_start(TIMER7);
+    timer_start(TIMER2);
 
     int i = 0;
     

@@ -84,7 +84,7 @@ void gpio_clr_pin(GPIO_TypeDef *ptr, uint32_t value);
 void gpio_set_lock(GPIO_TypeDef *ptr, uint32_t value);
 void gpio_clr_lock(GPIO_TypeDef *ptr, uint32_t value);
 void gpio_type(GPIO_TypeDef *ptr, uint32_t bit, GPIO_Mode mode, GPIO_OType otype, GPIO_AltFunction alt_func);
-void gpio_speed(GPIO_TypeDef *ptr, uint32_t bit, uint32_t speed);
-void gpio_pupd(GPIO_TypeDef *ptr, uint32_t bit, uint32_t pupd);
+void gpio_speed(GPIO_TypeDef *ptr, uint32_t bit, GPIO_OSpeed speed);
+void gpio_pupd(GPIO_TypeDef *ptr, uint32_t bit, GPIO_PuPd pupd);
 
 #endif /* GPIO_H_ */
