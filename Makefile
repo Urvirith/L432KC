@@ -9,27 +9,31 @@ OBJ 		:= $(TOOLCHAIN)objcopy	# Object Copy
 
 # -Os				Optimize for Size
 # -mcpu=cortex-m4	Compile for the ARM M4 Processor
-# mthumb			Target the MTHUMB Instruction Set
-TARGET_ARCH := -mcpu=cortex-m4
-CFLAGS	  	:= -Os $(TARGET_ARCH) -mthumb
+# -mthumb			Target the MTHUMB Instruction Set
+# -ftlo				Target the MTHUMB Instruction Set
+ARCH 		:= m4
+TARGET_ARCH := -mcpu=cortex-$(ARCH)
+THUMB		:= -mthumb
+LINKTIME	:= -flto
+CFLAGS	  	:= -Os $(TARGET_ARCH) $(THUMB) #$(LINKTIME)
 ASFLAGS		:= $(TARGET_ARCH) -mthumb
 LDFLAGS 	:= -T 
 OBJFLAGS	:= -O binary
 
 SRC_DIR   := ./src
-HAL_DIR   := ./src/hal
-I2C_DRI   := ./src/driver/i2c
-START_DIR := ./src/startup
-LINK_DIR  := ./src/linker
+HAL_DIR   := $(SRC_DIR)/hal
+I2C_DRI   := $(SRC_DIR)/driver/i2c
+START_DIR := $(SRC_DIR)/startup
+LINK_DIR  := $(SRC_DIR)/linker
 OBJ_DIR	  := ./obj
 BIN_DIR	  := ./bin
 
-OBJS = $(OBJ_DIR)/common.o \
-			$(OBJ_DIR)/gpio.o \
-				$(OBJ_DIR)/rcc.o \
-					$(OBJ_DIR)/timer.o \
-						$(OBJ_DIR)/nvic.o \
-								$(OBJ_DIR)/main.o
+OBJS := $(OBJ_DIR)/common.o \
+		$(OBJ_DIR)/timer.o \
+		$(OBJ_DIR)/nvic.o \
+		$(OBJ_DIR)/gpio.o \
+		$(OBJ_DIR)/rcc.o \
+		$(OBJ_DIR)/main.o
 
 #	EXAMPLE OF AUTOMATIC VARIABLES
 #	%.o: %.c %.h common.h
