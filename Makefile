@@ -10,13 +10,13 @@ OBJ 		:= $(TOOLCHAIN)objcopy	# Object Copy
 # -Os				Optimize for Size
 # -mcpu=cortex-m4	Compile for the ARM M4 Processor
 # -mthumb			Target the MTHUMB Instruction Set
-# -ftlo				Target the MTHUMB Instruction Set
+# -ftlo				Set Linker Time Optimisations
 ARCH 		:= m4
 TARGET_ARCH := -mcpu=cortex-$(ARCH)
 THUMB		:= -mthumb
 LINKTIME	:= -flto
 CFLAGS	  	:= -Os $(TARGET_ARCH) $(THUMB) #$(LINKTIME)
-ASFLAGS		:= $(TARGET_ARCH) -mthumb
+ASFLAGS		:= $(TARGET_ARCH) $(THUMB)
 LDFLAGS 	:= -T 
 OBJFLAGS	:= -O binary
 
