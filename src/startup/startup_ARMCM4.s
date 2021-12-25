@@ -150,7 +150,7 @@ __Vectors_End:
                 .globl   Reset_Handler
                 .fnstart
 Reset_Handler:
-                bl       system_init
+                bl       sys_init
 
                 ldr      r4, =__copy_table_start__
                 ldr      r5, =__copy_table_end__

@@ -18,13 +18,12 @@
 #define TIMER7              ((TIMER_TypeDef *) TIMER7_BASE)
 #define NVIC                ((NVIC_TypeDef *) NVIC_BASE)
 
-extern void system_init() {
+extern void sys_init() {
     rcc_write_msi_range(RCC, Clk16MHz);
     rcc_write_ahb2_enr(RCC, GPIOA_RCC_AHB2_ENABLE);
     rcc_write_ahb2_enr(RCC, GPIOB_RCC_AHB2_ENABLE);
     rcc_write_apb1_enr1(RCC, TIMER2_RCC_APB1R1_ENABLE);
     rcc_write_apb1_enr1(RCC, TIMER7_RCC_APB1R1_ENABLE);
-    rcc_write_apb1_enr1(RCC, I2C1_RCC_APB1R1_ENABLE);
 }
 
 extern void start() { 
